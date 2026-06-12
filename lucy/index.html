@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Feliz Cumpleaños Gabs</title>
+    <style>
+        :root {
+            --color-bg: #f3ebf7;            /* Lila muy claro para el fondo */
+            --color-sobre: #8e44ad;         /* Morado vibrante para el sobre */
+            --color-sobre-oscuro: #7d3c98;  /* Morado un poco más oscuro */
+            --color-sobre-interior: #6c3483;/* Morado profundo para el fondo del sobre */
+            --color-carta: #ffffff;         /* Blanco para el fondo del texto */
+            --color-texto: #3b2244;         /* Morado muy oscuro para que se lea perfecto */
+        }
+
+        body {
+            background-color: var(--color-bg);
+            font-family: 'Courier New', Courier, monospace;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+            perspective: 1000px;
+        }
+
+        /* --- CONTENEDOR DEL SOBRE --- */
+        .contenedor-sobre {
+            position: relative;
+            width: 280px;
+            height: 180px;
+            background-color: var(--color-sobre-oscuro);
+            border-radius: 0 0 10px 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            cursor: pointer;
+            transition: transform 0.5s, opacity 0.5s ease;
+        }
+
+        /* Caras laterales e inferior del sobre */
+        .contenedor-sobre::before {
+            content: '';
+            position: absolute;
+            bottom: 0; right: 0;
+            border-width: 90px 140px;
+            border-style: solid;
+            border-color: transparent var(--color-sobre) var(--color-sobre) transparent;
+            border-radius: 0 0 10px 0;
+            z-index: 3;
+        }
+
+        .contenedor-sobre::after {
+            content: '';
+            position: absolute;
+            bottom: 0; left: 0;
+            border-width: 90px 140px;
+            border-style: solid;
+            border-color: transparent transparent var(--color-sobre) var(--color-sobre);
+            border-radius: 0 0 0 10px;
+            z-index: 3;
+        }
+
+        /* Solapa superior del sobre */
+        .solapa {
+            position: absolute;
+            top: 0; left: 0;
+            border-width: 90px 140px;
+            border-style: solid;
+            border-color: var(--color-sobre-interior) transparent transparent transparent;
+            transform-origin: top;
+            transition: transform 0.6s ease;
+            z-index: 4;
+        }
+
+        /* Sticker de pastel para abrir el sobre */
+        .sticker-pastel {
+            position: absolute;
+            top: 75px;
+            left: 125px;
+            font-size: 2rem;
+            z-index: 5;
+            transition: transform 0.3s, opacity 0.3s;
+        }
+
+        /* --- ANIMACIÓN DE APERTURA --- */
+        .contenedor-sobre.abierto .solapa {
+            transform: rotateX(180deg);
+            z-index: 1;
+        }
+
+        .contenedor-sobre.abierto .sticker-pastel {
+            transform: scale(0);
+            opacity: 0;
+        }
+
+        .contenedor-sobre.desvanecer {
+            opacity: 0;
+            transform: scale(0.5) translateY(100px);
+            pointer-events: none;
+        }
+
+        /* --- SECCIÓN DE LA CARTA --- */
+        .pantalla-carta {
+            position: absolute;
+            display: none;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: center;
+            width: 100%;
+            height: 100vh;
+            padding: 40px 20px;
+            box-sizing: border-box;
+            text-align: left;
+            opacity: 0;
+            transition: opacity 1s ease;
+            overflow-y: auto; /* Permite hacer scroll si el texto es largo en el celular */
+        }
+
+        #carta {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            color: var(--color-texto);
+            white-space: pre-wrap;
+            margin-bottom: 40px;
+            background: rgba(255, 255, 255, 0.85);
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            max-width: 600px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .pastel-animado {
+            font-size: 5rem;
+            display: none;
+            opacity: 0;
+            transition: opacity 1s ease;
+            animation: flotar 1.5s infinite alternate ease-in-out;
+            margin-bottom: 40px;
+        }
+
+        @keyframes flotar {
+            from { transform: translateY(0); }
+            to { transform: translateY(-15px); }
+        }
+
+        /* Clases utilitarias */
+        .mostrar-flex { display: flex !important; }
+        .opacidad-1 { opacity: 1 !important; }
+    </style>
+</head>
+<body>
+
+    <div class="contenedor-sobre" id="sobre" onclick="abrirSobre()">
+        <div class="solapa"></div>
+        <div class="sticker-pastel">🎂</div>
+    </div>
+
+    <div class="pantalla-carta" id="pantallaCarta">
+        <div id="carta"></div>
+        <div id="pastel" class="pastel-animado">🎂</div>
+    </div>
+
+    <script>
+        // Tu texto personalizado con saltos de línea adaptados
+        const texto = "Mi buen Gabs\nBrandon, Gabriel, Brother y Amigo ✨\n\nEn este día tan especial, espero que te vaya excelente en todos los aspectos de tu vida, bendiciones hoy y siempre, te mereces lo mejor, que este año venga con todo lo bueno que tiene la vida para ti, dicen que los amigos como tú son como el buen vino: ¡mejoran con los años! y confirmo. 🍷\n\nUn año más viejo, pero a seguir sumando más historias, eres una persona clave para cada una de las personas que conformamos este álbum. Que cada día de tu vida esté llena de amor, sabiduría, éxito, paz, felicidad, aventuras increíbles, de Dios y que cada paso que des te acerque a cada sueño que tienes y siempre encuentres motivos para celebrar y gozar y si no encuentras motivos, me mandas un mensaje y te recuerdo varios puntos del porqué celebrarte. 🫡\n\nNo compartimos la misma sangre, pero la vida se encargó de elegirnos como familia. Gracias por ser esa persona incondicional que está en los momentos más brillantes y en las tormentas más oscuras. Admiro tu lealtad y el gran hombre que eres. Que la vida te devuelva multiplicado todo el bien que haces. Mirar atrás y ver todo lo que hemos superado, reído y construido juntos me hace sentir muy afortunada. Gracias por tu apoyo sincero y por ser mi cable a tierra. 🫂\n\nHemos pasado por tantas épocas diferentes, pero hay algo que se ha mantenido intacto a lo largo de los años: tu amistad y tu apoyo incondicional.\n\nGracias por los momentos de risas descontroladas cuando todo era juego y diversión, pero, sobre todo, gracias por tu mano firme en los momentos difíciles. No importa la distancia, el paso del tiempo o lo ocupados que estemos con nuestras rutinas; tú siempre me escuchas y estamos uno para el otro, encontramos la manera de hacerte presente, de escucharme sin juzgar y de darme ese empujón que a veces me hace falta para seguir adelante. 👋\n\nTe mereces que se te abran todas las puertas, que alcances cada meta que te propongas y que la salud y la felicidad nunca falten en tu camino. Que sigamos sumando más épocas, más anécdotas y más años de complicidad. 🌟\n\nMuchas veces me pongo a pensar y analizar por todo lo que ha pasado nuestra amistad, desde el hecho de que entraste gracias a Dios a Marketing RM y desde ahí platicamos y fuimos cómplices en muchos aspectos, desde borracheras, conciertos, partidos deportivos, pláticas que se hacían eternas, esas comidas, ir de viaje al zoológico, ir a la feria, ir al tianguis, desde momentos de felicidad, momentos de tristeza, emprendimientos, logros, por compartirme esas palabras de tu mamá y tu familia referente a la amistad que tenemos, algunos tragos amargos, de aquella vez que celebramos en un antro hace algunos años, de celebrar el mero día algún logro, cumpleaños o por nuestra amistad, gracias por tu lealtad, por escucharme, por ser un apoyo incondicional. ⚡\n\nSe vienen más metas, objetivos, logros que estoy segura que lo vas a lograr, goza, esfuérzate, brilla y si necesitas brillo avísame y te aviento 1 kg de diamantina o las que necesites, siempre que me necesites aquí estará, siempre, no lo dudes, porque en mí siempre encontrarás un refugio y esa amiga - hermana que te ayudará, escuchará. 💖\n\nPor una vuelta más al sol Gabs, te quiero mucho. 🥳🎉";
+        
+        let index = 0;
+        const velocidad = 110; /* Velocidad pausada ideal para leer */
+        const sobre = document.getElementById('sobre');
+        const pantallaCarta = document.getElementById('pantallaCarta');
+        const contenedorCarta = document.getElementById('carta');
+        const contenedorPastel = document.getElementById('pastel');
+
+        function abrirSobre() {
+            sobre.classList.add('abierto');
+            
+            setTimeout(() => {
+                sobre.classList.add('desvanecer');
+            }, 800);
+
+            setTimeout(() => {
+                sobre.style.display = 'none';
+                pantallaCarta.classList.add('mostrar-flex');
+                
+                setTimeout(() => {
+                    pantallaCarta.classList.add('opacidad-1');
+                    escribirTexto();
+                }, 50);
+            }, 1300);
+        }
+
+        function escribirTexto() {
+            if (index < texto.length) {
+                contenedorCarta.textContent += texto.charAt(index);
+                index++;
+                
+                // Hace un scroll automático hacia abajo en el móvil mientras escribe
+                pantallaCarta.scrollTop = pantallaCarta.scrollHeight;
+                
+                setTimeout(escribirTexto, velocidad);
+            } else {
+                // Cuando termina todo el texto, se muestra el pastel flotando al final
+                setTimeout(() => {
+                    contenedorPastel.classList.add('mostrar-flex');
+                    setTimeout(() => {
+                        contenedorPastel.classList.add('opacidad-1');
+                        pantallaCarta.scrollTop = pantallaCarta.scrollHeight;
+                    }, 50);
+                }, 500);
+            }
+        }
+    </script>
+</body>
+</html>
