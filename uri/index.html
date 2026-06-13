@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Feliz Cumpleaños, Hermano</title>
+    <style>
+        :root {
+            --color-bg: #eef5fc;            /* Azul cielo/hielo muy claro para el fondo */
+            --color-sobre: #2980b9;         /* Azul rey para el sobre */
+            --color-sobre-oscuro: #2471a3;  /* Azul medio */
+            --color-sobre-interior: #1b4f72;/* Azul marino profundo para el fondo del sobre */
+            --color-carta: #ffffff;         /* Fondo blanco para la carta */
+            --color-texto: #154360;         /* Azul ultra oscuro para el texto */
+        }
+
+        body {
+            background-color: var(--color-bg);
+            font-family: 'Courier New', Courier, monospace;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+            perspective: 1000px;
+        }
+
+        /* --- CONTENEDOR DEL SOBRE --- */
+        .contenedor-sobre {
+            position: relative;
+            width: 280px;
+            height: 180px;
+            background-color: var(--color-sobre-oscuro);
+            border-radius: 0 0 10px 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            cursor: pointer;
+            transition: transform 0.5s, opacity 0.5s ease;
+        }
+
+        /* Caras laterales e inferior del sobre */
+        .contenedor-sobre::before {
+            content: '';
+            position: absolute;
+            bottom: 0; right: 0;
+            border-width: 90px 140px;
+            border-style: solid;
+            border-color: transparent var(--color-sobre) var(--color-sobre) transparent;
+            border-radius: 0 0 10px 0;
+            z-index: 3;
+        }
+
+        .contenedor-sobre::after {
+            content: '';
+            position: absolute;
+            bottom: 0; left: 0;
+            border-width: 90px 140px;
+            border-style: solid;
+            border-color: transparent transparent var(--color-sobre) var(--color-sobre);
+            border-radius: 0 0 0 10px;
+            z-index: 3;
+        }
+
+        /* Solapa superior del sobre */
+        .solapa {
+            position: absolute;
+            top: 0; left: 0;
+            border-width: 90px 140px;
+            border-style: solid;
+            border-color: var(--color-sobre-interior) transparent transparent transparent;
+            transform-origin: top;
+            transition: transform 0.6s ease;
+            z-index: 4;
+        }
+
+        /* Sticker de brindis para abrir el sobre */
+        .sticker-brindis {
+            position: absolute;
+            top: 75px;
+            left: 125px;
+            font-size: 2rem;
+            z-index: 5;
+            transition: transform 0.3s, opacity 0.3s;
+            pointer-events: none;
+        }
+
+        /* --- ANIMACIÓN DE APERTURA --- */
+        .contenedor-sobre.abierto .solapa {
+            transform: rotateX(180deg);
+            z-index: 1;
+        }
+
+        .contenedor-sobre.abierto .sticker-brindis {
+            transform: scale(0);
+            opacity: 0;
+        }
+
+        .contenedor-sobre.desvanecer {
+            opacity: 0;
+            transform: scale(0.5) translateY(100px);
+            pointer-events: none;
+        }
+
+        /* --- SECCIÓN DE LA CARTA --- */
+        .pantalla-carta {
+            position: absolute;
+            display: none;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: center;
+            width: 100%;
+            height: 100vh;
+            padding: 40px 20px;
+            box-sizing: border-box;
+            text-align: left;
+            opacity: 0;
+            transition: opacity 1s ease;
+            overflow-y: auto;
+        }
+
+        #carta {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            color: var(--color-texto);
+            white-space: pre-wrap;
+            margin-bottom: 40px;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            max-width: 600px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        /* Stickers finales flotantes */
+        .final-animado {
+            font-size: 4rem;
+            display: none;
+            opacity: 0;
+            transition: opacity 1s ease;
+            animation: flotar 1.5s infinite alternate ease-in-out;
+            margin-bottom: 40px;
+            letter-spacing: 10px;
+        }
+
+        @keyframes flotar {
+            from { transform: translateY(0); }
+            to { transform: translateY(-15px); }
+        }
+
+        /* Clases utilitarias */
+        .mostrar-flex { display: flex !important; }
+        .opacidad-1 { opacity: 1 !important; }
+    </style>
+</head>
+<body>
+
+    <!-- El Sobre Interactivo -->
+    <div class="contenedor-sobre" id="sobre" onclick="abrirSobre()">
+        <div class="solapa"></div>
+        <div class="sticker-brindis">🍻</div>
+    </div>
+
+    <!-- La Carta Animada -->
+    <div class="pantalla-carta" id="pantallaCarta">
+        <div id="carta"></div>
+        <div id="final" class="final-animado">👊🌟</div>
+    </div>
+
+    <script>
+        // Tu texto personalizado con los emojis integrados
+        const texto = "¡¡Hermano querido, te quiero desear feliz cumpleaños!! 🥳🎉\n\nSi te soy honesto, la idea principal era hacerte un video, pero no iba a soportar las lágrimas 🥲, porque no pensé en que llegarías a volverte una persona indispensable en mi vida. Sé que no debemos depender de las personas, pero tú me demuestras que realmente existen los amigos, los hermanos. 🫂✨\n\nCuando nos conocimos nos caíamos mal jajaj, y nunca pensé llevarme contigo y mucho menos una amistad tan chingona como la nuestra. Somos de mundos diferentes y, gracias a Dios, hemos construido una hermandad sin igual. Eres una persona chingona mi bro, que nunca se rinde, que siempre le echa huevos para todo, y que sobre todo ve a las personas que quiere y lucha para que también salgan adelante, eres ese aliento que uno siempre necesita. 💪🚀\n\nTe agradezco porque has estado en diferentes etapas de mi vida, tanto buenas como malas, y a pesar de que haya temporadas que no nos vemos taaan seguido (te freseas jajaj 🍓) sé que puedo contar contigo para cualquier cosa. Supe que me he ganado tu amistad y tu cariño, pues me defiendes ante todo y ante todos, has sido mi soporte este casi año que he llevado un proceso, te alegras de mis logros y me has demostrado lo que es amar a los demás, y soportar a otros jajaj. 🛡️❤️\n\nHermano, celebro tu vida, agradezco que Dios te haya puesto en mi camino y a ti por ser insistente y persistente en nuestra amistad. Deseo que pueda celebrar más años contigo hermano, que podamos compartir más aventuras, más viajes ✈️, empedar en tu boda jajaj y que en el futuro podamos brindar en la boda del otro 🤵‍♂️💍, celebrando que se nos ha dado todo. Ya lo dijo Junior H:\n\n\"Junto a mi carnal, no es de sangre pero demostró lealtad\". 🎵🔥\n\nTe quiero hermano, y le pido a Dios siempre te bendiga. 🙏☘️";
+        
+        let index = 0;
+        const velocidad = 65; 
+        const sobre = document.getElementById('sobre');
+        const pantallaCarta = document.getElementById('pantallaCarta');
+        const contenedorCarta = document.getElementById('carta');
+        const contenedorFinal = document.getElementById('final');
+
+        function abrirSobre() {
+            sobre.classList.add('abierto');
+            
+            setTimeout(() => {
+                sobre.classList.add('desvanecer');
+            }, 800);
+
+            setTimeout(() => {
+                sobre.style.display = 'none';
+                pantallaCarta.classList.add('mostrar-flex');
+                
+                setTimeout(() => {
+                    pantallaCarta.classList.add('opacidad-1');
+                    escribirTexto();
+                }, 50);
+            }, 1300);
+        }
+
+        function escribirTexto() {
+            if (index < texto.length) {
+                contenedorCarta.textContent += texto.charAt(index);
+                index++;
+                
+                // Scroll automático para móviles
+                pantallaCarta.scrollTop = pantallaCarta.scrollHeight;
+                
+                setTimeout(escribirTexto, velocidad);
+            } else {
+                // Muestra los emojis finales flotando
+                setTimeout(() => {
+                    contenedorFinal.classList.add('mostrar-flex');
+                    setTimeout(() => {
+                        contenedorFinal.classList.add('opacidad-1');
+                        pantallaCarta.scrollTop = pantallaCarta.scrollHeight;
+                    }, 50);
+                }, 500);
+            }
+        }
+    </script>
+</body>
+</html>
