@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Para mi Hermano</title>
+    <style>
+        :root {
+            --color-bg: #e8f5e9;            /* Verde menta muy claro para el fondo */
+            --color-sobre: #2e7d32;         /* Verde esmeralda para el sobre */
+            --color-sobre-oscuro: #1b5e20;  /* Verde bosque oscuro */
+            --color-sobre-interior: #144317;/* Verde profundo para el interior del sobre */
+            --color-carta: #ffffff;         /* Fondo blanco para la carta */
+            --color-texto: #1a331e;         /* Verde ultra oscuro para el texto */
+        }
+
+        body {
+            background-color: var(--color-bg);
+            font-family: 'Courier New', Courier, monospace;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+            perspective: 1000px;
+        }
+
+        /* --- CONTENEDOR DEL SOBRE --- */
+        .contenedor-sobre {
+            position: relative;
+            width: 280px;
+            height: 180px;
+            background-color: var(--color-sobre-oscuro);
+            border-radius: 0 0 10px 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            cursor: pointer;
+            transition: transform 0.5s, opacity 0.5s ease;
+        }
+
+        /* Caras laterales e inferior del sobre */
+        .contenedor-sobre::before {
+            content: '';
+            position: absolute;
+            bottom: 0; right: 0;
+            border-width: 90px 140px;
+            border-style: solid;
+            border-color: transparent var(--color-sobre) var(--color-sobre) transparent;
+            border-radius: 0 0 10px 0;
+            z-index: 3;
+        }
+
+        .contenedor-sobre::after {
+            content: '';
+            position: absolute;
+            bottom: 0; left: 0;
+            border-width: 90px 140px;
+            border-style: solid;
+            border-color: transparent transparent var(--color-sobre) var(--color-sobre);
+            border-radius: 0 0 0 10px;
+            z-index: 3;
+        }
+
+        /* Solapa superior del sobre */
+        .solapa {
+            position: absolute;
+            top: 0; left: 0;
+            border-width: 90px 140px;
+            border-style: solid;
+            border-color: var(--color-sobre-interior) transparent transparent transparent;
+            transform-origin: top;
+            transition: transform 0.6s ease;
+            z-index: 4;
+        }
+
+        /* Sticker de puño para abrir el sobre */
+        .sticker-puno {
+            position: absolute;
+            top: 75px;
+            left: 125px;
+            font-size: 2rem;
+            z-index: 5;
+            transition: transform 0.3s, opacity 0.3s;
+            pointer-events: none;
+        }
+
+        /* --- ANIMACIÓN DE APERTURA --- */
+        .contenedor-sobre.abierto .solapa {
+            transform: rotateX(180deg);
+            z-index: 1;
+        }
+
+        .contenedor-sobre.abierto .sticker-puno {
+            transform: scale(0);
+            opacity: 0;
+        }
+
+        .contenedor-sobre.desvanecer {
+            opacity: 0;
+            transform: scale(0.5) translateY(100px);
+            pointer-events: none;
+        }
+
+        /* --- SECCIÓN DE LA CARTA --- */
+        .pantalla-carta {
+            position: absolute;
+            display: none;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: center;
+            width: 100%;
+            height: 100vh;
+            padding: 40px 20px;
+            box-sizing: border-box;
+            text-align: left;
+            opacity: 0;
+            transition: opacity 1s ease;
+            overflow-y: auto;
+        }
+
+        #carta {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            color: var(--color-texto);
+            white-space: pre-wrap;
+            margin-bottom: 40px;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            max-width: 600px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        /* Stickers finales flotantes */
+        .final-animado {
+            font-size: 4rem;
+            display: none;
+            opacity: 0;
+            transition: opacity 1s ease;
+            animation: flotar 1.5s infinite alternate ease-in-out;
+            margin-bottom: 40px;
+            letter-spacing: 10px;
+        }
+
+        @keyframes flotar {
+            from { transform: translateY(0); }
+            to { transform: translateY(-15px); }
+        }
+
+        /* Clases utilitarias */
+        .mostrar-flex { display: flex !important; }
+        .opacidad-1 { opacity: 1 !important; }
+    </style>
+</head>
+<body>
+
+    <!-- El Sobre Interactivo -->
+    <div class="contenedor-sobre" id="sobre" onclick="abrirSobre()">
+        <div class="solapa"></div>
+        <div class="sticker-puno">👊</div>
+    </div>
+
+    <!-- La Carta Animada -->
+    <div class="pantalla-carta" id="pantallaCarta">
+        <div id="carta"></div>
+        <div id="final" class="final-animado">👊💚</div>
+    </div>
+
+    <script>
+        // Tu texto con los emojis emotivos integrados
+        const texto = "El día que te conocí, te pusiste bien mamón conmigo, me querías calar a ver si sí sabías agarrarte a madrazos... 🥊🤨\n\nY lo que te demostré ese día fue que si nadie te cargaba por estar hasta el culo... 🍻🥴\n\nYo sí lo haría. 🫡\n\nBueno, después ya nos dimos en la madre, pero primero te demostré que puedes confiar en mí. 💥🤝\n\nTe amo un chingo y te extraño, hermano. 🫂✨";
+        
+        let index = 0;
+        const velocidad = 65; 
+        const sobre = document.getElementById('sobre');
+        const pantallaCarta = document.getElementById('pantallaCarta');
+        const contenedorCarta = document.getElementById('carta');
+        const contenedorFinal = document.getElementById('final');
+
+        function abrirSobre() {
+            sobre.classList.add('abierto');
+            
+            setTimeout(() => {
+                sobre.classList.add('desvanecer');
+            }, 800);
+
+            setTimeout(() => {
+                sobre.style.display = 'none';
+                pantallaCarta.classList.add('mostrar-flex');
+                
+                setTimeout(() => {
+                    pantallaCarta.classList.add('opacidad-1');
+                    escribirTexto();
+                }, 50);
+            }, 1300);
+        }
+
+        function escribirTexto() {
+            if (index < texto.length) {
+                contenedorCarta.textContent += texto.charAt(index);
+                index++;
+                
+                // Scroll automático para móviles
+                pantallaCarta.scrollTop = pantallaCarta.scrollHeight;
+                
+                setTimeout(escribirTexto, velocidad);
+            } else {
+                // Muestra los emojis finales flotando
+                setTimeout(() => {
+                    contenedorFinal.classList.add('mostrar-flex');
+                    setTimeout(() => {
+                        contenedorFinal.classList.add('opacidad-1');
+                        pantallaCarta.scrollTop = pantallaCarta.scrollHeight;
+                    }, 50);
+                }, 500);
+            }
+        }
+    </script>
+</body>
+</html>
